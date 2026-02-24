@@ -1,0 +1,66 @@
+[
+  {
+    "iso_a2": "GB",
+    "name": "United Kingdom",
+    "hemisphere": "north",
+    "driving_side": "left",
+    "languages": ["english"],
+    "scripts": ["latin"]
+  },
+  {
+    "iso_a2": "AU",
+    "name": "Australia",
+    "hemisphere": "south",
+    "driving_side": "left",
+    "languages": ["english"],
+    "scripts": ["latin"]
+  },
+  {
+    "iso_a2": "FR",
+    "name": "France",
+    "hemisphere": "north",
+    "driving_side": "right",
+    "languages": ["french"],
+    "scripts": ["latin"]
+  },
+  {
+    "iso_a2": "NO",
+    "name": "Norway",
+    "hemisphere": "north",
+    "driving_side": "right",
+    "languages": ["norwegian"],
+    "scripts": ["latin"]
+  },
+  {
+    "iso_a2": "BR",
+    "name": "Brazil",
+    "hemisphere": "south",
+    "driving_side": "right",
+    "languages": ["portuguese"],
+    "scripts": ["latin"]
+  },
+  {
+    "iso_a2": "RU",
+    "name": "Russia",
+    "hemisphere": "north",
+    "driving_side": "right",
+    "languages": ["russian"],
+    "scripts": ["cyrillic"]
+  },
+  {
+    "iso_a2": "CN",
+    "name": "China",
+    "hemisphere": "north",
+    "driving_side": "right",
+    "languages": ["chinese"],
+    "scripts": ["han"]
+  },
+  {
+    "iso_a2": "JP",
+    "name": "Japan",
+    "hemisphere": "north",
+    "driving_side": "left",
+    "languages": ["japanese"],
+    "scripts": ["japanese"]
+  }
+]

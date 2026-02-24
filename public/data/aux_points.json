@@ -1,0 +1,42 @@
+[
+  {
+    "id": "cap_london",
+    "type": "capital",
+    "name": "London",
+    "iso_a2": "GB",
+    "lon": -0.1276,
+    "lat": 51.5074
+  },
+  {
+    "id": "cap_canberra",
+    "type": "capital",
+    "name": "Canberra",
+    "iso_a2": "AU",
+    "lon": 149.13,
+    "lat": -35.2809
+  },
+  {
+    "id": "cap_paris",
+    "type": "capital",
+    "name": "Paris",
+    "iso_a2": "FR",
+    "lon": 2.3522,
+    "lat": 48.8566
+  },
+  {
+    "id": "cap_oslo",
+    "type": "capital",
+    "name": "Oslo",
+    "iso_a2": "NO",
+    "lon": 10.7522,
+    "lat": 59.9139
+  },
+  {
+    "id": "cap_brasilia",
+    "type": "capital",
+    "name": "Brasilia",
+    "iso_a2": "BR",
+    "lon": -47.8825,
+    "lat": -15.7942
+  }
+]
