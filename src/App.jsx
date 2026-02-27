@@ -3,7 +3,7 @@ import FiltersPanel from './components/FiltersPanel';
 import MapView from './components/MapView';
 import ResultsPanel from './components/ResultsPanel';
 import { applyConstraints } from './engine/constraintEngine';
-import { collectOptions, joinGeoWithFeatures } from './utils/dataAdapter';
+import { collectOptions, getFeatureIsoA2, joinGeoWithFeatures } from './utils/dataAdapter';
 import { constraintsToSearch, searchToConstraints } from './utils/urlState';
 import './App.css';
 
@@ -104,10 +104,20 @@ export default function App() {
 
   const constraintObjects = useMemo(() => buildConstraintsArray(constraints), [constraints]);
 
-  const result = useMemo(
-    () => applyConstraints(features, constraintObjects, { mode: 'strict' }),
-    [features, constraintObjects]
-  );
+  const result = useMemo(() => {
+    if (constraintObjects.length === 0) {
+      const allIso = [...new Set(
+        (geojson?.features ?? [])
+          .map((feature) => getFeatureIsoA2(feature))
+          .filter(Boolean)
+      )];
+
+      const scores = Object.fromEntries(allIso.map((iso) => [iso, 1]));
+      return { matchingIso: allIso, scores };
+    }
+
+    return applyConstraints(features, constraintObjects, { mode: 'strict' });
+  }, [features, constraintObjects, geojson]);
 
   const optionValues = useMemo(() => collectOptions(features), [features]);
 

@@ -2,6 +2,7 @@ import { simplify } from '@turf/turf';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { useEffect, useRef } from 'react';
+import { getFeatureIsoA2 } from '../utils/dataAdapter';
 
 const SOURCE_ID = 'countries-src';
 const BASE_FILL_LAYER_ID = 'countries-fill-base';
@@ -17,7 +18,7 @@ function buildRenderGeoJSON(geojson, matchedIso, excludedIso) {
   return {
     ...geojson,
     features: (geojson.features ?? []).map((feature) => {
-      const iso = String(feature?.properties?.ISO_A2 ?? '').toUpperCase();
+      const iso = getFeatureIsoA2(feature);
       const isMatched = matched.has(iso);
       const isExcluded = excluded.has(iso);
 
@@ -31,6 +32,10 @@ function buildRenderGeoJSON(geojson, matchedIso, excludedIso) {
       };
     })
   };
+}
+
+function hasGeometry(feature) {
+  return Boolean(feature?.geometry && typeof feature.geometry.type === 'string');
 }
 
 export default function MapView({ geojson, matchedIso, excludedIso }) {
@@ -166,13 +171,26 @@ export default function MapView({ geojson, matchedIso, excludedIso }) {
       }
 
       const renderReady = buildRenderGeoJSON(geojson, matchedIso, excludedIso);
-      const simplified = simplify(renderReady, {
-        tolerance: 0.005,
-        highQuality: false,
-        mutate: false
-      });
+      const withGeometry = (renderReady.features ?? []).filter(hasGeometry);
+      const withoutGeometry = (renderReady.features ?? []).filter((feature) => !hasGeometry(feature));
+      const noSimplify = new URLSearchParams(window.location.search).get('nosimplify') === '1';
 
-      source.setData(simplified);
+      const simplifiedOrRaw =
+        noSimplify || withGeometry.length === 0
+          ? { ...renderReady, features: withGeometry }
+          : simplify(
+              { ...renderReady, features: withGeometry },
+              {
+                tolerance: 0.005,
+                highQuality: false,
+                mutate: false
+              }
+            );
+
+      source.setData({
+        ...renderReady,
+        features: [...(simplifiedOrRaw.features ?? []), ...withoutGeometry]
+      });
     };
 
     if (map.getSource(SOURCE_ID)) {

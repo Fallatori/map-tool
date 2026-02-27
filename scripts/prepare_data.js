@@ -14,21 +14,33 @@ function normalizeString(v) {
     .toLowerCase();
 }
 
+function normalizeArray(values) {
+  const arr = Array.isArray(values) ? values : [values];
+  return [...new Set(arr.map(normalizeString).filter(Boolean))].sort();
+}
+
 function normalizeRow(row) {
+  const hemisphereRaw = normalizeArray(row.hemisphere).filter((value) => allowedHemisphere.has(value));
+  const hemisphere = hemisphereRaw.length ? hemisphereRaw : ['both'];
+
+  const drivingRaw = normalizeArray(row.driving_side).filter((value) => allowedDriving.has(value));
+  const driving_side =
+    drivingRaw.length === 0
+      ? 'both'
+      : drivingRaw.includes('both') || drivingRaw.length > 1
+        ? 'both'
+        : drivingRaw[0];
+
   return {
     ...row,
     iso_a2: String(row.iso_a2 ?? '')
       .trim()
       .toUpperCase(),
     name: String(row.name ?? '').trim(),
-    hemisphere: normalizeString(row.hemisphere),
-    driving_side: normalizeString(row.driving_side),
-    languages: Array.isArray(row.languages)
-      ? [...new Set(row.languages.map(normalizeString).filter(Boolean))].sort()
-      : [],
-    scripts: Array.isArray(row.scripts)
-      ? [...new Set(row.scripts.map(normalizeString).filter(Boolean))].sort()
-      : []
+    hemisphere,
+    driving_side,
+    languages: normalizeArray(row.languages),
+    scripts: normalizeArray(row.scripts)
   };
 }
 
@@ -52,7 +64,11 @@ async function main() {
   }
 
   const invalidEnums = features.filter(
-    (row) => !allowedHemisphere.has(row.hemisphere) || !allowedDriving.has(row.driving_side)
+    (row) =>
+      !Array.isArray(row.hemisphere) ||
+      row.hemisphere.length === 0 ||
+      !row.hemisphere.every((h) => allowedHemisphere.has(h)) ||
+      !allowedDriving.has(row.driving_side)
   );
 
   if (invalidEnums.length) {
