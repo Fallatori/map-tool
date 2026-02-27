@@ -5,10 +5,10 @@ import { useEffect, useRef } from 'react';
 import { getFeatureIsoA2 } from '../utils/dataAdapter';
 
 const SOURCE_ID = 'countries-src';
-const BASE_FILL_LAYER_ID = 'countries-fill-base';
 const MATCHED_FILL_LAYER_ID = 'countries-fill-matched';
 const EXCLUDED_FILL_LAYER_ID = 'countries-fill-excluded';
 const BORDER_LAYER_ID = 'countries-border';
+const COUNTRY_LABEL_LAYER_ID = 'countries-labels';
 const DEBUG_LAYER_ID = 'countries-debug-labels';
 
 function buildRenderGeoJSON(geojson, matchedIso, excludedIso) {
@@ -61,22 +61,17 @@ export default function MapView({ geojson, matchedIso, excludedIso }) {
     map.addControl(new maplibregl.NavigationControl(), 'top-right');
 
     const handleLoad = () => {
+      const baseLayers = map.getStyle()?.layers ?? [];
+      for (const layer of baseLayers) {
+        if (map.getLayer(layer.id)) {
+          map.setLayoutProperty(layer.id, 'visibility', 'none');
+        }
+      }
+
       if (!map.getSource(SOURCE_ID)) {
         map.addSource(SOURCE_ID, {
           type: 'geojson',
           data: { type: 'FeatureCollection', features: [] }
-        });
-      }
-
-      if (!map.getLayer(BASE_FILL_LAYER_ID)) {
-        map.addLayer({
-          id: BASE_FILL_LAYER_ID,
-          type: 'fill',
-          source: SOURCE_ID,
-          paint: {
-            'fill-color': '#9ca3af',
-            'fill-opacity': 0.3
-          }
         });
       }
 
@@ -115,6 +110,45 @@ export default function MapView({ geojson, matchedIso, excludedIso }) {
             'line-color': '#4b5563',
             'line-width': 0.7,
             'line-opacity': 0.7
+          }
+        });
+      }
+
+      if (!map.getLayer(COUNTRY_LABEL_LAYER_ID)) {
+        map.addLayer({
+          id: COUNTRY_LABEL_LAYER_ID,
+          type: 'symbol',
+          source: SOURCE_ID,
+          layout: {
+            'text-field': [
+              'coalesce',
+              ['get', 'name'],
+              ['get', 'NAME_EN'],
+              ['get', 'ADMIN'],
+              ['get', 'NAME'],
+              ['get', 'BRK_NAME'],
+              ['get', 'ISO_A2'],
+              ''
+            ],
+            'text-size': [
+              'interpolate',
+              ['linear'],
+              ['zoom'],
+              1,
+              9,
+              4,
+              11,
+              7,
+              13
+            ],
+            'text-anchor': 'center',
+            'text-allow-overlap': false,
+            'text-ignore-placement': false
+          },
+          paint: {
+            'text-color': '#111827',
+            'text-halo-color': '#ffffff',
+            'text-halo-width': 1
           }
         });
       }
