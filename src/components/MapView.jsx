@@ -146,9 +146,10 @@ export default function MapView({ geojson, matchedIso, excludedIso }) {
             'text-ignore-placement': false
           },
           paint: {
-            'text-color': '#111827',
+            'text-color': '#1f2937',
             'text-halo-color': '#ffffff',
-            'text-halo-width': 1
+            'text-halo-width': 2,
+            'text-halo-blur': 0.6
           }
         });
       }
