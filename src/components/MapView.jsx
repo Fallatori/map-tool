@@ -2,12 +2,13 @@ import { simplify } from '@turf/turf';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { useEffect, useRef } from 'react';
+import { getFeatureIsoA2 } from '../utils/dataAdapter';
 
 const SOURCE_ID = 'countries-src';
-const BASE_FILL_LAYER_ID = 'countries-fill-base';
 const MATCHED_FILL_LAYER_ID = 'countries-fill-matched';
 const EXCLUDED_FILL_LAYER_ID = 'countries-fill-excluded';
 const BORDER_LAYER_ID = 'countries-border';
+const COUNTRY_LABEL_LAYER_ID = 'countries-labels';
 const DEBUG_LAYER_ID = 'countries-debug-labels';
 
 function buildRenderGeoJSON(geojson, matchedIso, excludedIso) {
@@ -17,7 +18,7 @@ function buildRenderGeoJSON(geojson, matchedIso, excludedIso) {
   return {
     ...geojson,
     features: (geojson.features ?? []).map((feature) => {
-      const iso = String(feature?.properties?.ISO_A2 ?? '').toUpperCase();
+      const iso = getFeatureIsoA2(feature);
       const isMatched = matched.has(iso);
       const isExcluded = excluded.has(iso);
 
@@ -31,6 +32,10 @@ function buildRenderGeoJSON(geojson, matchedIso, excludedIso) {
       };
     })
   };
+}
+
+function hasGeometry(feature) {
+  return Boolean(feature?.geometry && typeof feature.geometry.type === 'string');
 }
 
 export default function MapView({ geojson, matchedIso, excludedIso }) {
@@ -56,22 +61,17 @@ export default function MapView({ geojson, matchedIso, excludedIso }) {
     map.addControl(new maplibregl.NavigationControl(), 'top-right');
 
     const handleLoad = () => {
+      const baseLayers = map.getStyle()?.layers ?? [];
+      for (const layer of baseLayers) {
+        if (map.getLayer(layer.id)) {
+          map.setLayoutProperty(layer.id, 'visibility', 'none');
+        }
+      }
+
       if (!map.getSource(SOURCE_ID)) {
         map.addSource(SOURCE_ID, {
           type: 'geojson',
           data: { type: 'FeatureCollection', features: [] }
-        });
-      }
-
-      if (!map.getLayer(BASE_FILL_LAYER_ID)) {
-        map.addLayer({
-          id: BASE_FILL_LAYER_ID,
-          type: 'fill',
-          source: SOURCE_ID,
-          paint: {
-            'fill-color': '#9ca3af',
-            'fill-opacity': 0.3
-          }
         });
       }
 
@@ -110,6 +110,46 @@ export default function MapView({ geojson, matchedIso, excludedIso }) {
             'line-color': '#4b5563',
             'line-width': 0.7,
             'line-opacity': 0.7
+          }
+        });
+      }
+
+      if (!map.getLayer(COUNTRY_LABEL_LAYER_ID)) {
+        map.addLayer({
+          id: COUNTRY_LABEL_LAYER_ID,
+          type: 'symbol',
+          source: SOURCE_ID,
+          layout: {
+            'text-field': [
+              'coalesce',
+              ['get', 'name'],
+              ['get', 'NAME_EN'],
+              ['get', 'ADMIN'],
+              ['get', 'NAME'],
+              ['get', 'BRK_NAME'],
+              ['get', 'ISO_A2'],
+              ''
+            ],
+            'text-size': [
+              'interpolate',
+              ['linear'],
+              ['zoom'],
+              1,
+              9,
+              4,
+              11,
+              7,
+              13
+            ],
+            'text-anchor': 'center',
+            'text-allow-overlap': false,
+            'text-ignore-placement': false
+          },
+          paint: {
+            'text-color': '#1f2937',
+            'text-halo-color': '#ffffff',
+            'text-halo-width': 2,
+            'text-halo-blur': 0.6
           }
         });
       }
@@ -166,13 +206,26 @@ export default function MapView({ geojson, matchedIso, excludedIso }) {
       }
 
       const renderReady = buildRenderGeoJSON(geojson, matchedIso, excludedIso);
-      const simplified = simplify(renderReady, {
-        tolerance: 0.005,
-        highQuality: false,
-        mutate: false
-      });
+      const withGeometry = (renderReady.features ?? []).filter(hasGeometry);
+      const withoutGeometry = (renderReady.features ?? []).filter((feature) => !hasGeometry(feature));
+      const noSimplify = new URLSearchParams(window.location.search).get('nosimplify') === '1';
 
-      source.setData(simplified);
+      const simplifiedOrRaw =
+        noSimplify || withGeometry.length === 0
+          ? { ...renderReady, features: withGeometry }
+          : simplify(
+              { ...renderReady, features: withGeometry },
+              {
+                tolerance: 0.005,
+                highQuality: false,
+                mutate: false
+              }
+            );
+
+      source.setData({
+        ...renderReady,
+        features: [...(simplifiedOrRaw.features ?? []), ...withoutGeometry]
+      });
     };
 
     if (map.getSource(SOURCE_ID)) {

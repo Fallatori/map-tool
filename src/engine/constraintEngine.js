@@ -13,23 +13,32 @@ function containsValue(list, value) {
   return list.map(normalizeString).includes(normalizeString(value));
 }
 
+function normalizeEnumList(value) {
+  if (Array.isArray(value)) {
+    return [...new Set(value.map(normalizeString).filter(Boolean))];
+  }
+
+  const normalized = normalizeString(value);
+  return normalized ? [normalized] : [];
+}
+
 function evaluateConstraint(country, constraint) {
   const type = constraint?.type;
   const value = constraint?.value;
-  const hemisphere = normalizeString(country.hemisphere);
-  const drivingSide = normalizeString(country.driving_side);
+  const hemisphere = normalizeEnumList(country.hemisphere);
+  const drivingSide = normalizeEnumList(country.driving_side);
 
   switch (type) {
     case 'hemisphere': {
       const wanted = normalizeString(value);
-      if (!wanted || !hemisphere) return null;
-      return hemisphere === 'both' || hemisphere === wanted;
+      if (!wanted || hemisphere.length === 0) return null;
+      return hemisphere.includes('both') || hemisphere.includes(wanted);
     }
 
     case 'driving_side': {
       const wanted = normalizeString(value);
-      if (!wanted || !drivingSide) return null;
-      return drivingSide === 'both' || drivingSide === wanted;
+      if (!wanted || drivingSide.length === 0) return null;
+      return drivingSide.includes('both') || drivingSide.includes(wanted);
     }
 
     case 'language':
