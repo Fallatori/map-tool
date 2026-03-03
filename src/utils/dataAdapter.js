@@ -1,15 +1,3 @@
-function normalizeEnum(value, allowed, fallback = 'both') {
-  if (Array.isArray(value)) {
-    const hit = value
-      .map((v) => String(v ?? '').trim().toLowerCase())
-      .find((v) => allowed.includes(v));
-    return hit ?? fallback;
-  }
-
-  const normalized = typeof value === 'string' ? value.trim().toLowerCase() : '';
-  return allowed.includes(normalized) ? normalized : fallback;
-}
-
 function normalizeIso(value) {
   const normalized = String(value ?? '')
     .trim()
@@ -48,12 +36,32 @@ export function getFeatureIsoA2(featureOrProperties) {
 
 function normalizeArray(values) {
   if (!Array.isArray(values)) return [];
-  return [...new Set(values.map((v) => String(v ?? '').trim().toLowerCase()).filter(Boolean))].sort();
+  return [
+    ...new Set(
+      values
+        .map((v) =>
+          String(v ?? '')
+            .trim()
+            .toLowerCase()
+        )
+        .filter(Boolean)
+    )
+  ].sort();
 }
 
 function normalizeEnumArray(values, allowed, fallback = ['both']) {
   const arr = Array.isArray(values) ? values : [values];
-  const normalized = [...new Set(arr.map((v) => String(v ?? '').trim().toLowerCase()).filter(Boolean))];
+  const normalized = [
+    ...new Set(
+      arr
+        .map((v) =>
+          String(v ?? '')
+            .trim()
+            .toLowerCase()
+        )
+        .filter(Boolean)
+    )
+  ];
   const filtered = normalized.filter((v) => allowed.includes(v));
 
   if (!filtered.length) return fallback;
@@ -65,7 +73,7 @@ export function normalizeCountryFeature(item = {}) {
   const hemisphere = normalizeEnumArray(item.hemisphere, ['north', 'south', 'both'], ['both']);
   const drivingRaw = normalizeEnumArray(item.driving_side, ['left', 'right', 'both'], ['both']);
   const driving_side =
-    drivingRaw.includes('both') || drivingRaw.length > 1 ? 'both' : drivingRaw[0] ?? 'both';
+    drivingRaw.includes('both') || drivingRaw.length > 1 ? 'both' : (drivingRaw[0] ?? 'both');
 
   return {
     iso_a2: String(item.iso_a2 ?? '')

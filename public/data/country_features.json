@@ -136,9 +136,9 @@
     ],
     "driving_side": "right",
     "languages": [
-      "luxembourgish",
       "french",
-      "german"
+      "german",
+      "luxembourgish"
     ],
     "scripts": [
       "latin"
@@ -152,8 +152,8 @@
     ],
     "driving_side": "right",
     "languages": [
-      "german",
       "french",
+      "german",
       "italian"
     ],
     "scripts": [
@@ -382,8 +382,8 @@
       "serbian"
     ],
     "scripts": [
-      "latin",
-      "cyrillic"
+      "cyrillic",
+      "latin"
     ]
   },
   {
@@ -395,12 +395,12 @@
     "driving_side": "right",
     "languages": [
       "bosnian",
-      "serbian",
-      "croatian"
+      "croatian",
+      "serbian"
     ],
     "scripts": [
-      "latin",
-      "cyrillic"
+      "cyrillic",
+      "latin"
     ]
   },
   {
@@ -414,8 +414,8 @@
       "montenegrin"
     ],
     "scripts": [
-      "latin",
-      "cyrillic"
+      "cyrillic",
+      "latin"
     ]
   },
   {
@@ -735,13 +735,13 @@
     ],
     "driving_side": "left",
     "languages": [
-      "english",
       "chinese",
+      "english",
       "malay"
     ],
     "scripts": [
-      "latin",
-      "han"
+      "han",
+      "latin"
     ]
   },
   {
@@ -767,8 +767,8 @@
     ],
     "driving_side": "right",
     "languages": [
-      "filipino",
-      "english"
+      "english",
+      "filipino"
     ],
     "scripts": [
       "latin"
@@ -782,8 +782,8 @@
     ],
     "driving_side": "left",
     "languages": [
-      "hindi",
-      "english"
+      "english",
+      "hindi"
     ],
     "scripts": [
       "devanagari",
@@ -912,12 +912,12 @@
     ],
     "driving_side": "right",
     "languages": [
-      "hebrew",
-      "arabic"
+      "arabic",
+      "hebrew"
     ],
     "scripts": [
-      "hebrew",
-      "arabic"
+      "arabic",
+      "hebrew"
     ]
   },
   {
@@ -1000,8 +1000,8 @@
     ],
     "driving_side": "right",
     "languages": [
-      "pashto",
-      "dari"
+      "dari",
+      "pashto"
     ],
     "scripts": [
       "arabic"
