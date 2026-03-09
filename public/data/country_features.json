@@ -1232,6 +1232,14 @@
     "scripts": ["arabic", "latin"]
   },
   {
+    "iso_a2": "XS",
+    "name": "Somaliland",
+    "hemisphere": ["north"],
+    "driving_side": "right",
+    "languages": ["arabic", "somali"],
+    "scripts": ["arabic", "latin"]
+  },
+  {
     "iso_a2": "SR",
     "name": "Suriname",
     "hemisphere": ["north"],

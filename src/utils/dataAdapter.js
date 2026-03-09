@@ -14,6 +14,12 @@ function normalizeIso(value) {
   return normalized;
 }
 
+function normalizeName(value) {
+  return String(value ?? '')
+    .trim()
+    .toLowerCase();
+}
+
 export function getFeatureIsoA2(featureOrProperties) {
   const properties = featureOrProperties?.properties ?? featureOrProperties ?? {};
   const candidates = [
@@ -110,12 +116,21 @@ export function collectOptions(features = []) {
 export function joinGeoWithFeatures(geojson, featureRows) {
   const normalizedRows = featureRows.map(normalizeCountryFeature);
   const byIso = new Map(normalizedRows.map((row) => [row.iso_a2, row]));
+  const byName = new Map(
+    normalizedRows.map((row) => [normalizeName(row.name), row]).filter(([name]) => Boolean(name))
+  );
 
   return {
     ...geojson,
     features: (geojson.features ?? []).map((feature) => {
       const iso = getFeatureIsoA2(feature);
-      const match = byIso.get(iso);
+      const name = normalizeName(
+        feature?.properties?.ADMIN ??
+          feature?.properties?.NAME_EN ??
+          feature?.properties?.NAME ??
+          feature?.properties?.BRK_NAME
+      );
+      const match = byIso.get(iso) ?? byName.get(name);
 
       return {
         ...feature,
